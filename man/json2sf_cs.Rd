@@ -4,12 +4,33 @@
 \alias{json2sf_cs}
 \title{Convert output from CycleStreets.net into sf object}
 \usage{
-json2sf_cs(obj, cols = NULL)
+json2sf_cs(
+  obj,
+  cols = NULL,
+  cols_extra = c("elevation_start", "elevation_end", "gradient_segment",
+    "elevation_change", "provisionName", "quietness_segment"),
+  smooth_gradient = FALSE,
+  distance_cutoff = 50,
+  gradient_cutoff = 0.1,
+  n = 3
+)
 }
 \arguments{
 \item{obj}{Object from CycleStreets.net read-in with}
 
 \item{cols}{Columns to be included in the result, a character vector or \code{NULL} for all available columns (see details for default)}
+
+\item{cols_extra}{Additional columns to be added providing summaries of gradient and other variables}
+
+\item{smooth_gradient}{Identify and fix anomalous gradients? TRUE by default. See
+https://github.com/Robinlovelace/cyclestreets/issues/14}
+
+\item{distance_cutoff}{Distance (m) used to identify anomalous gradients}
+
+\item{gradient_cutoff}{Gradient (\%, e.g. 0.1 being 10\%) used to identify anomalous gradients}
+
+\item{n}{The number of segments to use to smooth anomalous gradents.
+The default is 3, meaning segments directly before, after and including the offending segment.}
 }
 \description{
 Convert output from CycleStreets.net into sf object
@@ -17,12 +38,23 @@ Convert output from CycleStreets.net into sf object
 \examples{
 from = "Leeds Rail Station"
 to = "University of Leeds"
+# from_point = tmaptools::geocode_OSM(from)
+# to_point = tmaptools::geocode_OSM(to)
+from_point = c(-1.54408, 53.79360)
+to_point =   c(-1.54802, 53.79618)
 # save result from the API call to journey.json
-# res_json = stplanr::route_cyclestreet(from, to, silent = FALSE, save_raw = TRUE)
+# res_json = journey(from_point, to_point, silent = FALSE, save_raw = TRUE)
 # jsonlite::write_json(res_json, "inst/extdata/journey.json")
 f = system.file(package = "cyclestreets", "extdata/journey.json")
 obj = jsonlite::read_json(f, simplifyVector = TRUE)
-rsf = json2sf_cs(obj)
+rsf = json2sf_cs(obj, cols = c("distances"))
+names(rsf)
+rsf
+rsf2 = json2sf_cs(obj, cols = NULL, cols_extra = NULL)
+names(rsf2)
+# stplanr::line2points(rsf) extract start and end points
 sf:::plot.sf(rsf)
 json2sf_cs(obj, cols = c("time", "busynance", "elevations"))
+json2sf_cs(obj, cols = c("distances"), smooth_gradient = TRUE,
+  gradient_cutoff = 0.05, distance_cutoff = 50)
 }

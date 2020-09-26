@@ -1,3 +1,9 @@
+# cyclestreets 0.3.0
+
+* New functionality to estimate gradients
+* Updated `json2sf_cs()` function provides more columns
+* All route-level data now returned by default 
+
 # cyclestreets 0.1.5
 
 * Update package description, title and other things in preparation for CRAN submission.

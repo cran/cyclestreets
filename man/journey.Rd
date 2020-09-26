@@ -4,11 +4,26 @@
 \alias{journey}
 \title{Plan a journey with CycleStreets.net}
 \usage{
-journey(from, to, plan = "fastest", silent = TRUE, pat = NULL,
-  base_url = "https://www.cyclestreets.net", reporterrors = TRUE,
-  save_raw = "FALSE", cols = c("name", "distances", "time", "busynance",
-  "elevations", "start_longitude", "start_latitude", "finish_longitude",
-  "finish_latitude"))
+journey(
+  from,
+  to,
+  plan = "fastest",
+  silent = TRUE,
+  pat = NULL,
+  base_url = "https://www.cyclestreets.net",
+  reporterrors = TRUE,
+  save_raw = "FALSE",
+  cols = c("name", "distances", "time", "busynance", "elevations", "start_longitude",
+    "start_latitude", "finish_longitude", "finish_latitude"),
+  cols_extra = c("crow_fly_distance", "event", "whence", "speed", "itinerary",
+    "clientRouteId", "plan", "note", "length", "quietness", "west", "south", "east",
+    "north", "leaving", "arriving", "grammesCO2saved", "calories", "edition",
+    "gradient_segment", "elevation_change", "provisionName", "quietness_segment"),
+  smooth_gradient = TRUE,
+  distance_cutoff = 50,
+  gradient_cutoff = 0.1,
+  n = 3
+)
 }
 \arguments{
 \item{from}{Longitude/Latitude pair, e.g. \code{c(-1.55, 53.80)}}
@@ -30,6 +45,18 @@ should report errors (FALSE by default).}
 \item{save_raw}{Boolean value which returns raw list from the json if TRUE (FALSE by default).}
 
 \item{cols}{Columns to be included in the result, a character vector or \code{NULL} for all available columns (see details for default)}
+
+\item{cols_extra}{Additional columns to be added providing summaries of gradient and other variables}
+
+\item{smooth_gradient}{Identify and fix anomalous gradients? TRUE by default. See
+https://github.com/Robinlovelace/cyclestreets/issues/14}
+
+\item{distance_cutoff}{Distance (m) used to identify anomalous gradients}
+
+\item{gradient_cutoff}{Gradient (\%, e.g. 0.1 being 10\%) used to identify anomalous gradients}
+
+\item{n}{The number of segments to use to smooth anomalous gradents.
+The default is 3, meaning segments directly before, after and including the offending segment.}
 }
 \description{
 R interface to the CycleStreets.net journey planning API,
@@ -58,15 +85,23 @@ A full list of variables (\code{cols}) available is represented by:\preformatted
 from = c(-1.55, 53.80) # geo_code("leeds")
 to = c(-1.76, 53.80) # geo_code("bradford uk")
 r1 = journey(from, to)
-sf:::plot.sf(r1)
-to = c(-2, 53.5) # towards manchester
+names(r1)
+r1[1:2, ]
+r1$grammesCO2saved
+r1$calories
+plot(r1[1:4])
+plot(r1[10:ncol(r1)])
+to = c(-2, 53.5) # towards Manchester
 r1 = journey(from, to)
+names(r1)
 r2 = journey(from, to, plan = "balanced")
-plot(r1["busynance"], reset = FALSE)
-plot(r2["busynance"], add = TRUE)
+plot(r1["quietness_segment"], reset = FALSE)
+plot(r2["quietness_segment"], add = TRUE)
 r3 = journey(from, to, silent = FALSE)
 r4 = journey(from, to, save_raw = TRUE)
-r5 = journey(from, to, cols = NULL)
+r5 = journey(c(-1.524, 53.819), c(-1.556, 53.806))
+plot(r5["gradient_segment"])
+plot(r5["gradient_smooth"])
 }
 }
 \seealso{

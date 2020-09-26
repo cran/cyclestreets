@@ -1,12 +1,14 @@
 Package: cyclestreets
 Type: Package
 Title: Cycle Routing and Data for Cycling Advocacy
-Version: 0.1.5
+Version: 0.3.0
 Authors@R: c(
     person("Robin", "Lovelace", email = "rob00x@gmail.com", role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0001-5679-6536")),
+      comment = c(ORCID = "0000-0001-5679-6536")),
     person("Martin", "Lucas-Smith", role = c("aut")),
-    person("Eric", "Krueger", role = c("ctb"))
+    person("Eric", "Krueger", role = c("ctb")),
+    person("Joey", "Talbot", email = "j.d.talbot@leeds.ac.uk", role = c("aut"), 
+      comment = c(ORCID = "0000-0002-6520-4560"))
     )
 Description: An interface to the cycle routing/data services provided by 'CycleStreets',
   a not-for-profit social enterprise and advocacy organisation.
@@ -17,13 +19,16 @@ Description: An interface to the cycle routing/data services provided by 'CycleS
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: sf, magrittr, jsonlite, httr, stringr
-RoxygenNote: 6.0.1
+Imports: sf, magrittr, jsonlite, httr, stringr, geodist
+RoxygenNote: 7.1.1
+Depends: R (>= 3.6.0)
+Suggests: stplanr, covr
 NeedsCompilation: no
-Packaged: 2018-05-03 11:56:01 UTC; rstudio
+Packaged: 2020-09-25 23:32:11 UTC; robin
 Author: Robin Lovelace [aut, cre] (<https://orcid.org/0000-0001-5679-6536>),
   Martin Lucas-Smith [aut],
-  Eric Krueger [ctb]
+  Eric Krueger [ctb],
+  Joey Talbot [aut] (<https://orcid.org/0000-0002-6520-4560>)
 Maintainer: Robin Lovelace <rob00x@gmail.com>
 Repository: CRAN
-Date/Publication: 2018-05-03 12:28:11 UTC
+Date/Publication: 2020-09-26 04:20:06 UTC
