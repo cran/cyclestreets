@@ -1,3 +1,7 @@
+# cyclestreets 0.4.0 (June 2021)
+
+* `quietness_segment` variable removed
+
 # cyclestreets 0.3.0
 
 * New functionality to estimate gradients
