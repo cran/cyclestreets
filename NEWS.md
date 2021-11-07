@@ -1,3 +1,11 @@
+# cyclestreets 0.5.2 (November 2021)
+
+* No longer depends on `stplanr` for tests to pass, new internal function
+
+# cyclestreets 0.5.1 (November 2021)
+
+* Updated docs
+
 # cyclestreets 0.5.0 (September 2021)
 
 * `ltns()` function added
