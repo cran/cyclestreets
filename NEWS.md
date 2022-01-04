@@ -1,3 +1,7 @@
+# cyclestreets 0.5.3 (January 2022)
+
+* Fixed issue with returning multiple identical routes when route consists of a single segment
+
 # cyclestreets 0.5.2 (November 2021)
 
 * No longer depends on `stplanr` for tests to pass, new internal function
