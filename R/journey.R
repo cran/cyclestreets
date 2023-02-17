@@ -30,7 +30,7 @@
 #' "name", "walk", "elevations", "distances", "start", "finish",
 #' "startSpeed", "start_longitude", "start_latitude", "finish_longitude",
 #' "finish_latitude", "crow_fly_distance", "event", "whence", "speed",
-#' "itinerary", "clientRouteId", "plan", "note", "length", "quietness",
+#' "itinerary", "plan", "note", "length", "quietness",
 #' "west", "south", "east", "north", "leaving", "arriving", "grammesCO2saved",
 #' "calories", "edition", "geometry")
 #' ```
@@ -83,7 +83,7 @@
 #' r = stplanr::route(l = desire_line, route_fun = journey)
 #' r
 #' }
-journey <- function(from,
+journey = function(from,
                     to,
                     plan = "fastest",
                     silent = TRUE,
@@ -108,7 +108,6 @@ journey <- function(from,
                       "whence",
                       "speed",
                       "itinerary",
-                      "clientRouteId",
                       "plan",
                       "note",
                       "length",
@@ -129,12 +128,13 @@ journey <- function(from,
                     smooth_gradient = TRUE,
                     distance_cutoff = 50,
                     gradient_cutoff = 0.1,
-                    n = 3) {
+                    n = 3,
+                    warnNA = FALSE) {
   if (is.null(pat))
     pat = Sys.getenv("CYCLESTREETS")
-  orig <- paste0(from, collapse = ",")
-  dest <- paste0(to, collapse = ",")
-  ft_string <- paste(orig, dest, sep = "|")
+  orig = paste0(from, collapse = ",")
+  dest = paste0(to, collapse = ",")
+  ft_string = paste(orig, dest, sep = "|")
 
   httrmsg = httr::modify_url(
     base_url,
@@ -151,18 +151,18 @@ journey <- function(from,
     print(paste0("The request sent to cyclestreets.net was: ", httrmsg))
   }
 
-  httrreq <- httr::GET(httrmsg)
+  httrreq = httr::GET(httrmsg)
 
   if (grepl('application/json', httrreq$headers$`content-type`) == FALSE) {
     stop("Error: CycleStreets did not return a valid result")
   }
 
-  txt <- httr::content(httrreq, as = "text", encoding = "UTF-8")
+  txt = httr::content(httrreq, as = "text", encoding = "UTF-8")
   if (txt == "") {
     stop("Error: CycleStreets did not return a valid result")
   }
 
-  obj <- jsonlite::fromJSON(txt, simplifyDataFrame = TRUE)
+  obj = jsonlite::fromJSON(txt, simplifyDataFrame = TRUE)
 
   if (is.element("error", names(obj))) {
     stop(paste0("Error: ", obj$error))
@@ -178,7 +178,8 @@ journey <- function(from,
       smooth_gradient,
       distance_cutoff,
       gradient_cutoff,
-      n
+      n,
+      warnNA = warnNA
     )
   }
   r
@@ -188,7 +189,7 @@ journey <- function(from,
 
 txt2coords = function(txt) {
   # helper function to document...
-  coords_split <- stringr::str_split(txt, pattern = " |,")[[1]]
+  coords_split = stringr::str_split(txt, pattern = " |,")[[1]]
   matrix(as.numeric(coords_split),
          ncol = 2,
          byrow = TRUE)
@@ -201,7 +202,7 @@ txt2coords = function(txt) {
 
 txt2elevations = function(txt) {
   # helper function to document...
-  coords_split <- stringr::str_split(txt, pattern = ",")[[1]]
+  coords_split = stringr::str_split(txt, pattern = ",")[[1]]
   as.numeric(coords_split)
 }
 
@@ -235,7 +236,7 @@ txt2elevations = function(txt) {
 #' json2sf_cs(obj, cols = c("time", "busynance", "elevations"))
 #' json2sf_cs(obj, cols = c("distances"), smooth_gradient = TRUE,
 #'   gradient_cutoff = 0.05, distance_cutoff = 50)
-json2sf_cs <- function(obj,
+json2sf_cs = function(obj,
                        cols = NULL,
                        cols_extra = c(
                          # "gradient_mean",
@@ -251,7 +252,8 @@ json2sf_cs <- function(obj,
                        smooth_gradient = FALSE,
                        distance_cutoff = 50,
                        gradient_cutoff = 0.1,
-                       n = 3) {
+                       n = 3,
+                       warnNA = FALSE) {
 
   coord_list = lapply(obj$marker$`@attributes`$points[-1], txt2coords)
   elev_list = lapply(obj$marker$`@attributes`$elevations[-1], txt2elevations)
@@ -389,7 +391,8 @@ json2sf_cs <- function(obj,
         r$distances,
         distance_cutoff,
         gradient_cutoff,
-        n
+        n,
+        warnNA = warnNA
       )
     } else {
       r$gradient_smooth = r$gradient_segment
@@ -413,6 +416,7 @@ json2sf_cs <- function(obj,
 #' @param distance_cutoff Distance (m) used to identify anomalous gradients
 #' @param gradient_cutoff Gradient (%, e.g. 0.1 being 10%) used to identify anomalous gradients
 #' @param n The number of segments to use to smooth anomalous gradents.
+#' @param warnNA Logical should NA warning be given?
 #' The default is 3, meaning segments directly before, after and including the offending segment.
 #' @export
 #' @examples
@@ -431,7 +435,8 @@ smooth_with_cutoffs = function(gradient_segment,
                                distances,
                                distance_cutoff = 50,
                                gradient_cutoff = 0.1,
-                               n = 3) {
+                               n = 3,
+                               warnNA = FALSE) {
   sel = gradient_segment > gradient_cutoff &
     distances <= distance_cutoff
   gradient_segment_smooth =
@@ -441,13 +446,21 @@ smooth_with_cutoffs = function(gradient_segment,
   gradient_segment[sel] = gradient_segment_smooth[sel]
 
   if (any(is.na(gradient_segment))) {
-    message("NA values detected")
+    if(warnNA){
+      message("NA values detected")
+    }
     gradient_segment[is.na(gradient_segment)] =
       mean(gradient_segment, na.rm = TRUE)
   }
   gradient_segment
 }
 
-route_rolling_average <- function(x, n = 3) {
-  as.numeric(stats::filter(x, rep(1 / n, n), sides = 2))
+# x = 1:2
+# route_rolling_average(x)
+route_rolling_average = function(x, n = 3) {
+  if(length(x) >= n) {
+    as.numeric(stats::filter(x, rep(1 / n, n), sides = 2))
+  } else {
+    x
+  }
 }

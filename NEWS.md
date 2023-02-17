@@ -1,3 +1,14 @@
+# cyclestreets 0.6.0 (February 2023)
+
+* Experimental `journey2()` function added (#31)
+* Documentation updated
+* `batch()` is now less chatty
+
+# cyclestreets 0.5.4 (January 2023)
+
+* Batch routing implemented
+* Remove unused field (#43)
+
 # cyclestreets 0.5.3 (January 2022)
 
 * Fixed issue with returning multiple identical routes when route consists of a single segment
