@@ -90,60 +90,16 @@ journey2 = function(fromPlace = NA,
   )
 
   urls = build_urls(routerUrl, itinerarypoints, query)
-  if(any(duplicated(urls))){
-    stop("You are sending duplicated requests")
-  }
 
   progressr::handlers("cli")
-  results = progressr::with_progress(otp_async(urls, host_con))
+  results_raw = progressr::with_progress(otp_async(urls, host_con))
 
-  if(length(results) == 0){
+  if(length(results_raw) == 0){
     stop("No results returned, check your connection")
   }
 
   message(Sys.time()," processing results")
-  results = RcppSimdJson::fparse(results, query = "/marker", query_error_ok = TRUE, always_list = TRUE)
-
-  # Process Marker
-  #names(results) <- as.character(seq_len(length(results)))
-  results = lapply(results, `[[`, "@attributes")
-  if(!is.null(id)){
-    names(results) = as.character(id)
-  }
-  results = lapply(results, dplyr::bind_rows)
-  results = dplyr::bind_rows(results, .id = "id")
-
-  route_variables = c("start","finish","start_longitude","start_latitude","finish_longitude","finish_latitude",
-                       "crow_fly_distance","event","whence","speed","itinerary","plan",
-                       "note","length","west","south","east","north","leaving","arriving",
-                       "grammesCO2saved","calories","edition")
-
-  if(segments){
-    results$SPECIALIDFORINTERNAL2 = cumsum(!is.na(results$start))
-
-    results_seg = results[results$type == "segment",]
-    results_seg$geometry = sf::st_sfc(lapply(results_seg$points, txt2coords2), crs = 4326)
-
-    results_rt = results[results$type == "route",]
-    results_rt = results_rt[,names(results_rt) %in% c(route_variables,"SPECIALIDFORINTERNAL2")]
-
-    results_seg = results_seg[,!names(results_seg) %in% route_variables]
-    results_seg = dplyr::left_join(results_seg, results_rt, by = "SPECIALIDFORINTERNAL2")
-
-    results = results_seg
-
-  } else {
-    results = results[results$type == "route",]
-    results$geometry = sf::st_sfc(lapply(results$coordinates, txt2coords2), crs = 4326)
-  }
-
-  results$points = NULL
-  results$coordinates = NULL
-  results = sf::st_as_sf(results)
-
-  # message("results may not be in the order they were provided")
-  results = add_columns(results)
-  results
+  json2sf_cs(results_raw, id = id, segments = segments)
 
 }
 
@@ -154,18 +110,6 @@ build_urls = function (routerUrl,itinerarypoints, query){
   secs = paste0(routerUrl,"?",secs,"&itinerarypoints=")
   secs = paste0(secs, itinerarypoints)
   secs
-}
-
-
-txt2coords2 = function(txt) {
-  if(is.na(txt)){
-    return(NULL)
-  }
-  coords_split = stringr::str_split(txt, pattern = " |,")[[1]]
-  coords_split = matrix(as.numeric(coords_split),
-         ncol = 2,
-         byrow = TRUE)
-  sf::st_linestring(coords_split)
 }
 
 otp_clean_input = function(imp, imp_name) {
@@ -214,43 +158,33 @@ otp_clean_input = function(imp, imp_name) {
   ))
 }
 
-otp_async = function(urls, host_con, id){
+otp_async <- function(urls, ncores){
 
-  # Success Function
-  otp_success = function(res){
-    p()
-    data <<- c(data, list(rawToChar(res$content)))
-    urls2 <<- c(urls2, res$url)
-  }
-  # Fail Function
-  otp_failure = function(msg){
-    p()
-    cat("Error: ", msg, "\n")
-    urls2 <<- c(urls2, msg$url)
-  }
-
-  t1 = Sys.time()
-
-  pool = curl::new_pool(host_con = host_con)
-  data = list()
-  urls2 = list()
-
-  for(i in seq_len(length(urls))){
-    h = make_handle(i)
+  t1 <- Sys.time()
+  p <- progressr::progressor(length(urls))
+  out <- vector('list', length(urls))
+  pool <- curl::new_pool(host_con = ncores)
+  lapply( seq_along(urls), function(i){
+    h <- curl::new_handle()
+    success <- function(res){
+      p()
+      out[[i]] <<- rawToChar(res$content)
+    }
+    failure <- function(res){
+      p()
+      cat("Error: ", res, "\n")
+      out[[i]] <<- paste0("Error: ", res)
+    }
     curl::curl_fetch_multi(urls[i],
-                           otp_success,
-                           otp_failure ,
+                           done = success,
+                           fail = failure,
                            pool = pool,
                            handle = h)
-  }
-  message(Sys.time()," sending ",length(urls)," routes requests using ",host_con," threads")
-  p = progressr::progressor(length(urls))
-  out = curl::multi_run(timeout = Inf, pool = pool)
-  urls2 = unlist(urls2)
-  data = data[match(urls, urls2)]
-  t2 = Sys.time()
+  })
+  curl::multi_run(timeout = Inf, pool = pool)
+  t2 <- Sys.time()
   message("Done in ",round(difftime(t2,t1, units = "mins"),1)," mins")
-  return(unlist(data, use.names = FALSE))
+  return(unlist(out, use.names = FALSE))
 }
 
 make_handle = function(x){
@@ -258,6 +192,7 @@ make_handle = function(x){
   curl::handle_setopt(handle, copypostfields = paste0("routeid=", x))
   return(handle)
 }
+
 
 get_values = function(v, fun) {
   sapply(v, function(x) fun(as.numeric(x)))
@@ -290,7 +225,7 @@ add_columns = function(r) {
   # Order for compatibility with journey:
   r$gradient_segment = elevation_change / r$distances
   r$elevation_change = elevation_max - elevation_min
-  r$gradient_smooth = cyclestreets::smooth_with_cutoffs(
+  r$gradient_smooth = smooth_with_cutoffs(
     r$gradient_segment,
     r$elevation_change,
     r$distances,

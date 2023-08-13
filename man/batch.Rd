@@ -5,10 +5,12 @@
 \title{Interface to CycleStreets Batch Routing API}
 \usage{
 batch(
-  desire_lines,
+  desire_lines = NULL,
+  id = NULL,
   directory = tempdir(),
+  wait = FALSE,
   wait_time = NULL,
-  name = "test batch",
+  name = "Batch job",
   serverId = 21,
   strategies = "quietest",
   bothDirections = 0,
@@ -17,18 +19,32 @@ batch(
   filename = "test",
   includeJsonOutput = 1,
   emailOnCompletion = "you@example.com",
-  username = "yourname",
+  username = Sys.getenv("CYCLESTREETS_UN"),
   password = Sys.getenv("CYCLESTREETS_PW"),
   base_url = "https://api.cyclestreets.net/v2/batchroutes.createjob",
-  id = NULL,
   pat = Sys.getenv("CYCLESTREETS_BATCH"),
-  silent = TRUE
+  silent = TRUE,
+  delete_job = TRUE,
+  cols_to_keep = c("id", "name", "provisionName", "distances", "time", "quietness",
+    "gradient_smooth")
 )
 }
 \arguments{
 \item{desire_lines}{Geographic desire lines representing origin-destination data}
 
+\item{id}{int
+Batch job ID, as returned from batchroutes.createjob.
+action string (start|pause|continue|terminate)
+Action to take. Available actions are:
+start: Start (open) job
+pause: Pause job
+continue: Continue (re-open) job
+terminate: Terminate job and delete data}
+
 \item{directory}{Where to save the data? \code{tempdir()} by default}
+
+\item{wait}{Should the process block your R session but return a route?
+FALSE by default.}
 
 \item{wait_time}{How long to wait before getting the data in seconds?
 NULL by default, meaning it will be calculated by the private function
@@ -66,23 +82,23 @@ Sys.setenv(CYCLESTREETS_PW="xxxxxx")}
 \item{base_url}{The base url from which to construct API requests
 (with default set to main server)}
 
-\item{id}{int
-Batch job ID, as returned from batchroutes.createjob.
-action string (start|pause|continue|terminate)
-Action to take. Available actions are:
-start: Start (open) job
-pause: Pause job
-continue: Continue (re-open) job
-terminate: Terminate job and delete data}
-
 \item{pat}{The API key used. By default this uses \code{Sys.getenv("CYCLESTREETS")}.}
 
 \item{silent}{Logical (default is FALSE). TRUE hides request sent.}
+
+\item{delete_job}{Delete the job? TRUE by default to avoid clogged servers}
+
+\item{cols_to_keep}{Columns to return in output sf object}
 }
 \description{
-Note: set \code{CYCLESTREETS_BATCH} and \code{CYCLESTREETS_PW}
+Note: set \code{CYCLESTREETS_BATCH}, \code{CYCLESTREETS_PW} and \code{CYCLESTREETS_PW}
 environment variables, e.g. with \code{usethis::edit_r_environ()}
 before trying this.
+}
+\details{
+See https://www.cyclestreets.net/journey/batch/ for web UI.
+
+Recommneded max batch size: 250,000 routes
 }
 \examples{
 if(FALSE) {
@@ -91,10 +107,25 @@ desire_lines = od::od_to_sf(od::od_data_df, od::od_data_zones)[4:5, 1:3]
 u = paste0("https://github.com/cyclestreets/cyclestreets-r/",
   "releases/download/v0.5.3/od-longford-10-test.Rds")
 desire_lines = readRDS(url(u))
-routes = batch(desire_lines, username = "robinlovelace")
+routes_id = batch(desire_lines, username = "robinlovelace", wait = FALSE)
+# Wait for some time, around a minute or 2
+routes_wait = batch(id = routes_id, username = "robinlovelace", wait = TRUE, delete_job = FALSE)
+names(routes_wait)
+plot(routes_wait)
+plot(desire_lines$geometry[4])
+plot(routes_wait$geometry[routes_wait$route_number == "4"], add = TRUE)
+head(routes_wait$route_number)
+unique(routes_wait$route_number)
+# Job is deleted after this command:
+routes_attrib = batch(desire_lines, id = routes_id, username = "robinlovelace", wait = TRUE)
+names(routes_attrib)
+unique(routes_attrib$route_number)
+desire_lines_huge = desire_lines[sample(nrow(desire_lines), 250000, replace = TRUE), ]
+routes_id = batch(desire_lines_huge, username = "robinlovelace", wait = FALSE)
 names(routes)
 plot(routes$geometry)
 plot(desire_lines$geometry, add = TRUE, col = "red")
 routes = batch(desire_lines, username = "robinlovelace", wait_time = 5)
+# profvis::profvis(batch_read("test-data.csv.gz"))
 }
 }
