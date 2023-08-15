@@ -1,13 +1,13 @@
-250300cc3f22bfdeedc74c98d22c3a19 *DESCRIPTION
+0e3fdf6ab30ad3fec2330cee74612e5e *DESCRIPTION
 e71d0adaf88e4cf2eed6234bfea6bb55 *NAMESPACE
-8ccbe5fa872acb06c37dc446b7a21bc0 *NEWS.md
-be7c7c44d5ffe04327beaeea678a2164 *R/batch.R
+df2063701c73e918b0ac1853e3f2de2a *NEWS.md
+2fe77338872ae37b893f16d72db86534 *R/batch.R
 b52ebf317771b8003ecb0a65c13cba63 *R/batch_multi.R
-345a5689e342645fae9f0c108523397f *R/batch_read.R
+7ec4230ab7f4cb9abc76bb1ef9a0811a *R/batch_read.R
 04e09a450f5dc78a4123c872969229cf *R/data.R
 173ca6288f1d93a2dccf8f323f21b5d7 *R/journey.R
 e1ceb811e151d35c1482b5f8da088af5 *R/journey2.R
-b55bfa07a6aff8f6af51e5e1787a9790 *R/json2sf_cs.R
+bd0ef99103195245e991055960e6f5fe *R/json2sf_cs.R
 07f8f5a27a08728ac9296c7b624bfba1 *R/ltn.R
 8d2487dbf45064f33b08e5a80830b68e *R/utils-pipe.R
 fe3c773e6812fcad5d6033faa72c6163 *R/utils.R
@@ -19,7 +19,7 @@ fe3c773e6812fcad5d6033faa72c6163 *R/utils.R
 1e6d1193999548495255a0bdd1da501d *inst/extdata/journey_short.json
 4dc58fdf9ad38b6c1f06b44438e14bf8 *inst/extdata/single-journey.json
 091694e3e93d387614f4b52ba57d3415 *inst/gradient-tests.R
-a89b61f9d71221efe19b04e842797232 *man/batch.Rd
+a27573debd2f6520867c1bf00f8951b1 *man/batch.Rd
 c7d1989055fedf9f44c94288ef949f92 *man/batch_multi.Rd
 ef4cb0af57af9f9056db8c54759ab52d *man/cyclestreets_column_names.Rd
 5f4e3e7b8de01f35860958064132e06d *man/figures/README-example-1.png
@@ -30,7 +30,7 @@ c77855960eb8848b13830414969459e9 *man/figures/README-unnamed-chunk-4-1.png
 a44a59302e3c84541798ba0582b7ad4d *man/figures/README-unnamed-chunk-5-1.png
 339c010680f14819f461b435d5241645 *man/journey.Rd
 186b8b3e9162087ea6a953cf60ec89fd *man/journey2.Rd
-fd47adca3b1e13be852ea002edb2f476 *man/json2sf_cs.Rd
+e616e75d9b3cb2d901d07a13ca7dc3a6 *man/json2sf_cs.Rd
 57184c23901a41b5c8b5f54487e887fd *man/ltns.Rd
 1f7896a1b866ff9ae89ba35be7c7b6f1 *man/pipe.Rd
 38aa9aeb48c5527ec25916041fe89383 *man/smooth_with_cutoffs.Rd
