@@ -57,6 +57,7 @@
 #' # Wait for some time, around a minute or 2
 #' routes_wait = batch(id = routes_id, username = "robinlovelace", wait = TRUE, delete_job = FALSE)
 #' names(routes_wait)
+#' sapply(routes_wait, class)
 #' plot(routes_wait)
 #' plot(desire_lines$geometry[4])
 #' plot(routes_wait$geometry[routes_wait$route_number == "4"], add = TRUE)
@@ -206,7 +207,7 @@ get_routes = function(url, desire_lines = NULL, filename, directory,
   if(file.exists(filename_local)) {
     message(filename, " already exists, overwriting it")
   }
-  httr::GET(url, httr::write_disk(filename_local, overwrite = TRUE))
+  httr::GET(url, httr::write_disk(filename_local, overwrite = TRUE), httr::timeout(600))
   # R.utils::gzip(filename_local)
   # routes = batch_read(gsub(pattern = ".gz", replacement = "", filename_local))
   # list.files(tempdir())
@@ -305,7 +306,7 @@ batch_routes = function(
   }
 
   # # With httr:
-  res = httr::POST(url = batch_url, body = body, httr::timeout(60))
+  res = httr::POST(url = batch_url, body = body, httr::timeout(600))
   res_json = httr::content(res, "parsed")
 
   # # # With httr2:
@@ -362,7 +363,7 @@ batch_jobdata = function(
   error_message = paste0(" ", as.character(res_json$error))
   # Print message if silent = FALSE
   if(!silent) {
-    if (error_message == " The job you requested to control is either non-existent or is owned by another user.") {
+    if (error_message %in% " The job you requested to control is either non-existent or is owned by another user.") {
       message("No job with that ID. Try setting delete_job = FALSE")
       stop(error_message)
     }

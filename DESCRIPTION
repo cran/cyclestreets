@@ -1,7 +1,7 @@
 Type: Package
 Package: cyclestreets
 Title: Cycle Routing and Data for Cycling Advocacy
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
     person("Robin", "Lovelace", , "rob00x@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5679-6536")),
@@ -34,7 +34,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-08-14 15:49:07 UTC; robin
+Packaged: 2024-09-02 15:52:08 UTC; robin
 Author: Robin Lovelace [aut, cre] (<https://orcid.org/0000-0001-5679-6536>),
   Martin Lucas-Smith [aut],
   Eric Krueger [ctb],
@@ -42,4 +42,4 @@ Author: Robin Lovelace [aut, cre] (<https://orcid.org/0000-0001-5679-6536>),
   Malcolm Morgan [ctb] (<https://orcid.org/0000-0002-9488-9183>)
 Maintainer: Robin Lovelace <rob00x@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-08-15 07:20:14 UTC
+Date/Publication: 2024-09-02 16:50:03 UTC
