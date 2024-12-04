@@ -1,7 +1,7 @@
 Type: Package
 Package: cyclestreets
 Title: Cycle Routing and Data for Cycling Advocacy
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(
     person("Robin", "Lovelace", , "rob00x@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5679-6536")),
@@ -10,7 +10,9 @@ Authors@R: c(
     person("Joey", "Talbot", , "j.d.talbot@leeds.ac.uk", role = "aut",
            comment = c(ORCID = "0000-0002-6520-4560")),
     person("Malcolm", "Morgan", role = "ctb",
-           comment = c(ORCID = "0000-0002-9488-9183"))
+           comment = c(ORCID = "0000-0002-9488-9183")),
+    person("Zhao", "Wang", role = "ctb",
+           comment = c(ORCID = "0000-0002-4054-0533"))
   )
 Description: An interface to the cycle routing/data services provided by
     'CycleStreets', a not-for-profit social enterprise and advocacy
@@ -34,12 +36,13 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2024-09-02 15:52:08 UTC; robin
+Packaged: 2024-12-04 11:28:08 UTC; robin
 Author: Robin Lovelace [aut, cre] (<https://orcid.org/0000-0001-5679-6536>),
   Martin Lucas-Smith [aut],
   Eric Krueger [ctb],
   Joey Talbot [aut] (<https://orcid.org/0000-0002-6520-4560>),
-  Malcolm Morgan [ctb] (<https://orcid.org/0000-0002-9488-9183>)
+  Malcolm Morgan [ctb] (<https://orcid.org/0000-0002-9488-9183>),
+  Zhao Wang [ctb] (<https://orcid.org/0000-0002-4054-0533>)
 Maintainer: Robin Lovelace <rob00x@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-09-02 16:50:03 UTC
+Date/Publication: 2024-12-04 11:50:02 UTC
